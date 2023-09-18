@@ -1,0 +1,39 @@
+questions:
+- variable: arc.name
+  group: "Настройки Grafana"
+  type: enum
+  label: "Выбрать регион"
+  required: true
+  default: "Test"
+  options:
+    - "Belgorod"
+    - "Orel"
+    - "Vladimir"
+    - "Omsk"
+    - "Msk_Cod"
+    - "Msk_Rcod"
+    - "Test"
+    - "Test2"
+    - "WebMis_Msk_Rcod"
+    - "WebMis_Msk_Cod"
+    - "WebMis_Belgorod"
+    - "WebMis_Vladimir"
+    - "Stationar_Msk"
+    - "Stationar_Belgorod"
+    - "Stationar_Orel"
+    - "TMDent"
+    
+- variable: grafana.rooturl
+  group: "Настройки Grafana"
+  label: "Указать адрес Grafana"
+  type: string
+  required: true
+  default: "portal.2dr.ru"
+
+- variable: prometheus.rotation
+  group: "Настройки Prometheus"
+  label: "Период хранения метрик"
+  description: "Указать целое число (количество дней)"
+  type: string
+  required: true
+  default: 2
