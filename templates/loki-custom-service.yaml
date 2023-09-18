@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  name: loki-service
+  namespace: grafana
+  resourceVersion: "2752766"
+spec:
+  clusterIP: 10.43.187.124
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 3100
+  selector:
+    app: loki
+  sessionAffinity: None
+  type: ClusterIP
