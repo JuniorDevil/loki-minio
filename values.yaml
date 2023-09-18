@@ -1,59 +1,68 @@
-arc:
-  name: 1
-
-prometheus:
-  rotation: 2
-
-grafana:
-  noproxy: "localhost,127.0.0.0/8,etc,prometheus-server,smtp.yandex.ru,loki-service,influxdb"
-  rooturl: "portal.2dr.ru"
-  dashboards:
-    image: docker.softrust.ru/2dr
-    tag: 2dr-grafana-dashboards
-    version: 18
-
 lokiconfig:
   auth_enabled: false
-  ingester:
-    chunk_idle_period: 15m
-    chunk_block_size: 262144
-    lifecycler:
-      ring:
-        kvstore:
-          store: inmemory
-        replication_factor: 1
 
-      ## Different ring configs can be used. E.g. Consul
-      # ring:
-      #   store: consul
-      #   replication_factor: 1
-      #   consul:
-      #     host: "consul:8500"
-      #     prefix: ""
-      #     httpclienttimeout: "20s"
-      #     consistentreads: true
-  limits_config:
-    enforce_metric_name: false
-    reject_old_samples: true
-    reject_old_samples_max_age: 168h
-  schema_config:
-    configs:
-    - from: 2018-04-15
-      store: boltdb
-      object_store: filesystem
-      schema: v9
-      index:
-        prefix: index_
-        period: 168h
   server:
-    http_listen_port: 3100
+  http_listen_port: 3100
+
+  distributor:
+  ring:
+    kvstore:
+      store: memberlist
+
+  ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: memberlist
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+  wal:
+    enabled: true
+    dir: /loki/wal
+
+  memberlist:
+  abort_if_cluster_join_fails: false
+
+  # Expose this port on all distributor, ingester
+  # and querier replicas.
+  bind_port: 7946
+
+  # You can use a headless k8s service for all distributor,
+  # ingester and querier components.
+  join_members:
+  - loki:7946
+
+  max_join_backoff: 1m
+  max_join_retries: 10
+  min_join_backoff: 1s
+
+  schema_config:
+  configs:
+  - from: 2020-05-15
+    store: boltdb-shipper
+    object_store: s3
+    schema: v11
+    index:
+      prefix: index_
+      period: 24h
+
   storage_config:
-    boltdb:
-      directory: /data/loki/index
-    filesystem:
-      directory: /data/loki/chunks
-  chunk_store_config:
-    max_look_back_period: 0
-  table_manager:
-    retention_deletes_enabled: false
-    retention_period: 0
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/index_cache
+    resync_interval: 5s
+    shared_store: s3
+  aws:
+    s3: http://admin:password@192.168.7.60:9000/loki
+    s3forcepathstyle: true
+
+  limits_config:
+  enforce_metric_name: false
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+  compactor:
+  working_directory: /loki/boltdb-shipper-compactor
+  shared_store: aws

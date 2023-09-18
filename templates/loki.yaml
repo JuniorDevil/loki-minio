@@ -33,7 +33,7 @@ spec:
       containers:
       - args:
         - -config.file=/etc/loki/loki.yaml
-        image: grafana/loki:v0.3.0
+        image: grafana/loki:latest
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 3
